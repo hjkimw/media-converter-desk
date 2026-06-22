@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createOutputFilename, DEFAULT_FILENAME_TEMPLATE } from "./filenames";
 
 describe("createOutputFilename", () => {
-  it("appends operation details and replaces the extension", () => {
+  it("preserves the original filename by default", () => {
     expect(
       createOutputFilename({
         originalName: "Vacation Photo.PNG",
@@ -10,7 +10,7 @@ describe("createOutputFilename", () => {
         width: 800,
         height: 600,
       }),
-    ).toBe("Vacation Photo-800x600-converted.webp");
+    ).toBe("Vacation Photo.webp");
   });
 
   it("renders a custom output template with supported tokens", () => {
@@ -43,7 +43,7 @@ describe("createOutputFilename", () => {
         format: "webp",
         template: "   ",
       }),
-    ).toBe("sample-converted.webp");
-    expect(DEFAULT_FILENAME_TEMPLATE).toBe("{name}-{width}x{height}-converted");
+    ).toBe("sample.webp");
+    expect(DEFAULT_FILENAME_TEMPLATE).toBe("{name}");
   });
 });

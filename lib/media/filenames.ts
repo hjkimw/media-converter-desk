@@ -7,7 +7,7 @@ type CreateOutputFilenameInput = {
   template?: string;
 };
 
-export const DEFAULT_FILENAME_TEMPLATE = "{name}-{width}x{height}-converted";
+export const DEFAULT_FILENAME_TEMPLATE = "{name}";
 
 export function createOutputFilename({
   originalName,
@@ -19,12 +19,8 @@ export function createOutputFilename({
 }: CreateOutputFilenameInput) {
   const lastDot = originalName.lastIndexOf(".");
   const originalBasename = lastDot > 0 ? originalName.slice(0, lastDot) : originalName;
-  const fallbackTemplate = width && height ? DEFAULT_FILENAME_TEMPLATE : "{name}-converted";
   const normalizedTemplate = template.trim();
-  const effectiveTemplate =
-    !normalizedTemplate || (normalizedTemplate === DEFAULT_FILENAME_TEMPLATE && (!width || !height))
-      ? fallbackTemplate
-      : normalizedTemplate;
+  const effectiveTemplate = normalizedTemplate || DEFAULT_FILENAME_TEMPLATE;
   const rendered = effectiveTemplate
     .replaceAll("{name}", originalBasename)
     .replaceAll("{width}", width ? String(width) : "")

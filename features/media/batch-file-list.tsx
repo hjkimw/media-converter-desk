@@ -98,7 +98,7 @@ export function BatchFileList({
                       />
                       <button
                         aria-label={`Reorder folder ${group.label}`}
-                        className="flex size-7 shrink-0 cursor-grab items-center justify-center rounded-sm text-muted-foreground hover:bg-background hover:text-primary active:cursor-grabbing"
+                        className="flex size-7 shrink-0 touch-none cursor-grab items-center justify-center rounded-sm text-muted-foreground hover:bg-background hover:text-primary active:cursor-grabbing"
                         type="button"
                         onPointerDown={(event) => {
                           event.preventDefault();
@@ -221,7 +221,7 @@ export function BatchFileList({
                       />
                       <button
                         aria-label={`Reorder ${item.name}`}
-                        className="mt-2 flex size-6 cursor-grab items-center justify-center rounded-sm text-muted-foreground hover:bg-secondary hover:text-primary active:cursor-grabbing"
+                        className="mt-2 flex size-6 touch-none cursor-grab items-center justify-center rounded-sm text-muted-foreground hover:bg-secondary hover:text-primary active:cursor-grabbing"
                         type="button"
                         onPointerDown={(event) => {
                           event.preventDefault();

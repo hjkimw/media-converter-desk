@@ -45,8 +45,13 @@ export function buildVideoConvertArgs({
     args.push("-b:v", "0");
   }
 
+  if (videoCodec === "vp9") {
+    // Reduce memory/CPU pressure for libvpx-vp9 in the wasm core.
+    args.push("-deadline", "good", "-cpu-used", "5");
+  }
+
   if (outputFormat === "mp4") {
-    args.push("-preset", "veryfast", "-movflags", "+faststart");
+    args.push("-preset", "veryfast", "-movflags", "+faststart", "-pix_fmt", "yuv420p");
   }
 
   args.push(outputName);

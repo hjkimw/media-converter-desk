@@ -9,8 +9,9 @@ export function reorderById(ids: string[], sourceId: string, targetId: string) {
   const next = [...ids];
   const [source] = next.splice(sourceIndex, 1);
   const nextTargetIndex = next.indexOf(targetId);
+  const insertIndex = sourceIndex < targetIndex ? nextTargetIndex + 1 : nextTargetIndex;
 
-  next.splice(nextTargetIndex, 0, source);
+  next.splice(insertIndex, 0, source);
 
   return next;
 }
@@ -62,7 +63,8 @@ export function reorderGroupsByKey<T>(
   const nextGroups = [...groups];
   const [sourceGroup] = nextGroups.splice(sourceIndex, 1);
   const nextTargetIndex = nextGroups.findIndex((group) => group.key === targetGroupKey);
-  nextGroups.splice(nextTargetIndex, 0, sourceGroup);
+  const insertIndex = sourceIndex < targetIndex ? nextTargetIndex + 1 : nextTargetIndex;
+  nextGroups.splice(insertIndex, 0, sourceGroup);
 
   return nextGroups.flatMap((group) => group.items);
 }

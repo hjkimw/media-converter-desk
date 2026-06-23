@@ -123,9 +123,13 @@ describe("BatchFileList", () => {
       />,
     );
 
-    fireEvent.pointerDown(screen.getByLabelText("Reorder first.png"));
-    fireEvent.pointerEnter(screen.getByTestId("media-row-b"));
-    fireEvent.pointerUp(screen.getByLabelText("Reorder first.png"));
+    const handle = screen.getByLabelText("Reorder first.png");
+    const targetRow = screen.getByTestId("media-row-b");
+    document.elementFromPoint = vi.fn().mockReturnValue(targetRow);
+
+    fireEvent.pointerDown(handle);
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 100 });
+    fireEvent.pointerUp(handle);
 
     expect(onReorder).toHaveBeenCalledWith("a", "b");
   });
@@ -212,9 +216,13 @@ describe("BatchFileList", () => {
       />,
     );
 
-    fireEvent.pointerDown(screen.getByLabelText("Reorder folder Trip"));
-    fireEvent.pointerEnter(screen.getByTestId("media-group-Work"));
-    fireEvent.pointerUp(screen.getByLabelText("Reorder folder Trip"));
+    const handle = screen.getByLabelText("Reorder folder Trip");
+    const targetSection = screen.getByTestId("media-group-Work");
+    document.elementFromPoint = vi.fn().mockReturnValue(targetSection);
+
+    fireEvent.pointerDown(handle);
+    fireEvent.pointerMove(handle, { clientX: 0, clientY: 200 });
+    fireEvent.pointerUp(handle);
 
     expect(onReorderGroup).toHaveBeenCalledWith("Trip", "Work");
   });

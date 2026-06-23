@@ -69,13 +69,6 @@ export function BatchFileList({
             key={group.key}
             className="flex flex-col gap-2"
             data-testid={`media-group-${group.key}`}
-            onPointerEnter={() => {
-              if (draggingGroupKey && draggingGroupKey !== group.key) {
-                onReorderGroup?.(draggingGroupKey, group.key);
-              }
-            }}
-            onPointerUp={() => setDraggingGroupKey(undefined)}
-            onPointerCancel={() => setDraggingGroupKey(undefined)}
           >
             {shouldShowGroupHeaders ? (
               <div
@@ -209,11 +202,6 @@ export function BatchFileList({
                       key={item.id}
                       data-testid={`media-row-${item.id}`}
                       role="listitem"
-                      onPointerEnter={() => {
-                        if (draggingId && draggingId !== item.id) {
-                          onReorder(draggingId, item.id);
-                        }
-                      }}
                       className={cn(
                         "group relative grid w-full touch-pan-y grid-cols-[28px_24px_minmax(0,1fr)_auto] items-start gap-2 rounded-md border border-border bg-background p-2 transition-colors hover:border-primary/70",
                         selectedId === item.id && "border-primary bg-secondary",

@@ -3,9 +3,14 @@ import { getArchiveFilename } from "./archive";
 import { reorderById, reorderGroupsByKey } from "./reorder";
 
 describe("reorderById", () => {
-  it("moves the source item before the target item", () => {
+  it("moves an item up (before the target) when dragging upward", () => {
     expect(reorderById(["a", "b", "c"], "c", "a")).toEqual(["c", "a", "b"]);
-    expect(reorderById(["a", "b", "c"], "a", "c")).toEqual(["b", "a", "c"]);
+    expect(reorderById(["a", "b", "c"], "b", "a")).toEqual(["b", "a", "c"]);
+  });
+
+  it("moves an item down (after the target) when dragging downward", () => {
+    expect(reorderById(["a", "b", "c"], "a", "b")).toEqual(["b", "a", "c"]);
+    expect(reorderById(["a", "b", "c"], "a", "c")).toEqual(["b", "c", "a"]);
   });
 
   it("keeps the original order for invalid or redundant moves", () => {
@@ -24,8 +29,18 @@ describe("reorderGroupsByKey", () => {
     createItem("e", undefined),
   ];
 
-  it("moves a whole folder group before the target group while preserving item order", () => {
+  it("moves a folder group up (before target) when dragging upward", () => {
     expect(reorderGroupsByKey(items, "folder:Work", "folder:Trip").map((item) => item.id)).toEqual([
+      "c",
+      "d",
+      "a",
+      "b",
+      "e",
+    ]);
+  });
+
+  it("moves a folder group down (after target) when dragging downward", () => {
+    expect(reorderGroupsByKey(items, "folder:Trip", "folder:Work").map((item) => item.id)).toEqual([
       "c",
       "d",
       "a",

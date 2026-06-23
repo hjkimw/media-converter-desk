@@ -44,7 +44,6 @@ import {
   writeStoredLeftPanelWidth,
   writeStoredSourceQueueHeight,
 } from "@/lib/media/panel-layout";
-import { getBrowserVideoDecision } from "@/lib/video/capability";
 import { validateMediaFile } from "@/lib/validation/media-validation";
 import { useMediaStore } from "@/stores/media-store";
 import { cn } from "@/lib/utils";
@@ -91,6 +90,10 @@ export function MediaWorkspace() {
     [items, selectedId],
   );
   const checkedItems = useMemo(() => items.filter((item) => checkedIds.has(item.id)), [checkedIds, items]);
+  const failedItems = useMemo(
+    () => items.filter((item) => item.status === "failed" && item.error),
+    [items],
+  );
   const isProcessing = items.some((item) => item.status === "processing" || item.status === "pending");
   const imageCount = items.filter((item) => item.type === "image").length;
   const videoCount = items.filter((item) => item.type === "video").length;
@@ -263,21 +266,6 @@ export function MediaWorkspace() {
 
         if (!metadata) {
           throw new Error("Video metadata is missing.");
-        }
-
-        const decision = getBrowserVideoDecision({
-          fileSize: item.size,
-          duration: metadata.duration,
-          isMobile: isLikelyMobile(),
-        });
-
-        if (decision.mode === "server_recommended") {
-          setError(item.id, {
-            code: "server_recommended",
-            message: decision.reason,
-            detail: "MVP에서는 서버 FFmpeg와 대용량 큐가 스텁으로만 준비되어 있습니다.",
-          });
-          return undefined;
         }
 
         updateStatus(item.id, "processing", 6);
@@ -494,6 +482,21 @@ export function MediaWorkspace() {
                   <p key={`${error.code}-${error.message}`} className="text-sm text-destructive">
                     {error.message}
                   </p>
+                ))}
+              </div>
+            ) : null}
+            {failedItems.length > 0 ? (
+              <div
+                className="flex flex-col gap-2 rounded-md border border-destructive/50 bg-secondary p-4"
+                data-testid="conversion-errors"
+              >
+                {failedItems.map((item) => (
+                  <div key={item.id} className="min-w-0">
+                    <p className="truncate text-sm font-medium text-destructive">{item.name} 변환 실패</p>
+                    <p className="break-words text-xs text-muted-foreground">
+                      {item.error?.detail || item.error?.message || "알 수 없는 오류가 발생했습니다."}
+                    </p>
+                  </div>
                 ))}
               </div>
             ) : null}
@@ -786,8 +789,4 @@ function getResultFormat(result: ProcessResult) {
 
 function createMediaId() {
   return "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function isLikelyMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }

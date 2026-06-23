@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, ChevronDown, ChevronRight, Download, Folder, GripVertical, Square, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, Folder, GripVertical, Trash2 } from "lucide-react";
 import type { UploadedMedia } from "@/types/media";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,32 +67,54 @@ export function BatchFileList({
               <div className="flex items-center justify-between gap-2 rounded-sm border border-border bg-secondary/60 px-2 py-1.5">
                 <div className="flex min-w-0 items-center gap-2">
                   {group.isFolder ? (
-                    <Button
-                      aria-expanded={!collapsedGroupKeys.has(group.key)}
-                      aria-label={`${collapsedGroupKeys.has(group.key) ? "Expand" : "Collapse"} folder ${group.label}`}
-                      className="size-7 shrink-0"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => {
-                        setCollapsedGroupKeys((current) => {
-                          const next = new Set(current);
-
-                          if (next.has(group.key)) {
-                            next.delete(group.key);
-                          } else {
-                            next.add(group.key);
+                    <>
+                      <input
+                        ref={(el) => {
+                          if (el) {
+                            el.indeterminate = isGroupPartiallyChecked(group.items, checkedIds);
                           }
+                        }}
+                        aria-label={`${isGroupFullyChecked(group.items, checkedIds) ? "Deselect" : "Select"} folder ${group.label}`}
+                        checked={isGroupFullyChecked(group.items, checkedIds)}
+                        className="size-4 shrink-0 cursor-pointer rounded-sm border border-input accent-primary"
+                        type="checkbox"
+                        onChange={() => {
+                          const shouldCheck = !isGroupFullyChecked(group.items, checkedIds);
 
-                          return next;
-                        });
-                      }}
-                    >
-                      {collapsedGroupKeys.has(group.key) ? (
-                        <ChevronRight aria-hidden="true" className="size-4" />
-                      ) : (
-                        <ChevronDown aria-hidden="true" className="size-4" />
-                      )}
-                    </Button>
+                          group.items.forEach((item) => {
+                            if (checkedIds.has(item.id) !== shouldCheck) {
+                              onToggleChecked(item.id);
+                            }
+                          });
+                        }}
+                      />
+                      <Button
+                        aria-expanded={!collapsedGroupKeys.has(group.key)}
+                        aria-label={`${collapsedGroupKeys.has(group.key) ? "Expand" : "Collapse"} folder ${group.label}`}
+                        className="size-7 shrink-0"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setCollapsedGroupKeys((current) => {
+                            const next = new Set(current);
+
+                            if (next.has(group.key)) {
+                              next.delete(group.key);
+                            } else {
+                              next.add(group.key);
+                            }
+
+                            return next;
+                          });
+                        }}
+                      >
+                        {collapsedGroupKeys.has(group.key) ? (
+                          <ChevronRight aria-hidden="true" className="size-4" />
+                        ) : (
+                          <ChevronDown aria-hidden="true" className="size-4" />
+                        )}
+                      </Button>
+                    </>
                   ) : (
                     <Folder aria-hidden="true" className="size-4 shrink-0 text-primary" />
                   )}
@@ -126,28 +148,6 @@ export function BatchFileList({
                 </div>
                 {group.isFolder ? (
                   <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                      aria-label={`${isGroupFullyChecked(group.items, checkedIds) ? "Deselect" : "Select"} folder ${group.label}`}
-                      className="h-7 px-2 text-xs"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        const shouldCheck = !isGroupFullyChecked(group.items, checkedIds);
-
-                        group.items.forEach((item) => {
-                          if (checkedIds.has(item.id) !== shouldCheck) {
-                            onToggleChecked(item.id);
-                          }
-                        });
-                      }}
-                    >
-                      {isGroupFullyChecked(group.items, checkedIds) ? (
-                        <CheckSquare data-icon="inline-start" />
-                      ) : (
-                        <Square data-icon="inline-start" />
-                      )}
-                      {isGroupFullyChecked(group.items, checkedIds) ? "해제" : "선택"}
-                    </Button>
                     <Button
                       aria-label={`Delete folder ${group.label}`}
                       className="h-7 px-2 text-xs"
@@ -267,6 +267,11 @@ export function BatchFileList({
 
 function isGroupFullyChecked(items: UploadedMedia[], checkedIds: Set<string>) {
   return items.length > 0 && items.every((item) => checkedIds.has(item.id));
+}
+
+function isGroupPartiallyChecked(items: UploadedMedia[], checkedIds: Set<string>) {
+  const checkedCount = items.filter((item) => checkedIds.has(item.id)).length;
+  return checkedCount > 0 && checkedCount < items.length;
 }
 
 function MimePill({ item }: { item: UploadedMedia }) {

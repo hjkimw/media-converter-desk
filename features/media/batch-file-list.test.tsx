@@ -211,7 +211,7 @@ describe("BatchFileList", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Select folder Trip" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select folder Trip" }));
 
     expect(onToggleChecked).toHaveBeenCalledTimes(2);
     expect(onToggleChecked).toHaveBeenCalledWith("a");
@@ -241,12 +241,63 @@ describe("BatchFileList", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Deselect folder Trip" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Deselect folder Trip" }));
 
     expect(onToggleChecked).toHaveBeenCalledTimes(2);
     expect(onToggleChecked).toHaveBeenCalledWith("a");
     expect(onToggleChecked).toHaveBeenCalledWith("b");
     expect(onToggleChecked).not.toHaveBeenCalledWith("c");
+  });
+
+  it("shows indeterminate state when only some items in a folder are checked", () => {
+    render(
+      <BatchFileList
+        checkedIds={new Set(["a"])}
+        items={[
+          createItem("a", "photo.png", 0, false, "Trip/photo.png"),
+          createItem("b", "clip.mp4", 0, false, "Trip/clip.mp4", "video"),
+        ]}
+        onDownload={vi.fn()}
+        onRemove={vi.fn()}
+        onRemoveFolder={vi.fn()}
+        onReorder={vi.fn()}
+        onSelect={vi.fn()}
+        onToggleAll={vi.fn()}
+        onToggleChecked={vi.fn()}
+        selectedId="a"
+      />,
+    );
+
+    const checkbox = screen.getByRole("checkbox", { name: "Select folder Trip" }) as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+    expect(checkbox.indeterminate).toBe(true);
+  });
+
+  it("checks all items when clicking an indeterminate group checkbox", () => {
+    const onToggleChecked = vi.fn();
+
+    render(
+      <BatchFileList
+        checkedIds={new Set(["a"])}
+        items={[
+          createItem("a", "photo.png", 0, false, "Trip/photo.png"),
+          createItem("b", "clip.mp4", 0, false, "Trip/clip.mp4", "video"),
+        ]}
+        onDownload={vi.fn()}
+        onRemove={vi.fn()}
+        onRemoveFolder={vi.fn()}
+        onReorder={vi.fn()}
+        onSelect={vi.fn()}
+        onToggleAll={vi.fn()}
+        onToggleChecked={onToggleChecked}
+        selectedId="a"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select folder Trip" }));
+
+    expect(onToggleChecked).toHaveBeenCalledTimes(1);
+    expect(onToggleChecked).toHaveBeenCalledWith("b");
   });
 
   it("renders source thumbnails and emphasizes MIME instead of a standalone media type tag", () => {

@@ -60,19 +60,15 @@ describe("PreviewPanel", () => {
       "overflow-hidden",
     );
     expect(screen.getByTestId("preview-pane-original")).toHaveClass(
-      "h-[360px]",
-      "overflow-hidden",
       "shrink-0",
-      "xl:h-auto",
+      "xl:overflow-hidden",
     );
     expect(screen.getByTestId("preview-pane-result")).toHaveClass(
-      "h-[360px]",
-      "overflow-hidden",
       "shrink-0",
-      "xl:h-auto",
+      "xl:overflow-hidden",
     );
-    expect(screen.getByTestId("preview-pane-body-original")).toHaveClass("overflow-y-auto", "min-h-0");
-    expect(screen.getByTestId("preview-pane-body-result")).toHaveClass("overflow-y-auto", "min-h-0");
+    expect(screen.getByTestId("preview-pane-body-original")).toHaveClass("xl:overflow-y-auto", "min-h-0");
+    expect(screen.getByTestId("preview-pane-body-result")).toHaveClass("xl:overflow-y-auto", "min-h-0");
     expect(screen.getAllByTestId("media-preview-frame")[0]).toHaveClass(
       "h-[220px]",
       "shrink-0",

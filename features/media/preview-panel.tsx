@@ -139,7 +139,7 @@ function PreviewPane({
   return (
     <div
       data-testid={`preview-pane-${title.toLowerCase()}`}
-      className="flex h-[360px] shrink-0 flex-col gap-2 overflow-hidden p-2 sm:gap-3 sm:p-3 xl:h-auto xl:min-h-0 xl:shrink xl:flex-1"
+      className="flex shrink-0 flex-col gap-2 p-2 sm:gap-3 sm:p-3 xl:min-h-0 xl:shrink xl:flex-1 xl:overflow-hidden"
     >
       <div className="min-w-0 shrink-0">
         <h3 className="text-sm font-semibold leading-5">{title}</h3>
@@ -147,7 +147,7 @@ function PreviewPane({
       </div>
       <div
         data-testid={`preview-pane-body-${title.toLowerCase()}`}
-        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
+        className="flex min-h-0 flex-1 flex-col gap-3 xl:overflow-y-auto"
       >
         {children}
       </div>

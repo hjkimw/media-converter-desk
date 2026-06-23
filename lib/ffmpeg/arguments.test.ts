@@ -32,6 +32,8 @@ describe("buildVideoConvertArgs", () => {
       "veryfast",
       "-movflags",
       "+faststart",
+      "-pix_fmt",
+      "yuv420p",
       "output.mp4",
     ]);
   });
@@ -49,6 +51,22 @@ describe("buildVideoConvertArgs", () => {
           maintainAspectRatio: true,
         },
       }),
-    ).toEqual(["-i", "input.mp4", "-c:v", "libvpx-vp9", "-c:a", "libopus", "-crf", "34", "-b:v", "0", "output.webm"]);
+    ).toEqual([
+      "-i",
+      "input.mp4",
+      "-c:v",
+      "libvpx-vp9",
+      "-c:a",
+      "libopus",
+      "-crf",
+      "34",
+      "-b:v",
+      "0",
+      "-deadline",
+      "good",
+      "-cpu-used",
+      "5",
+      "output.webm",
+    ]);
   });
 });

@@ -23,10 +23,12 @@ export const DEFAULT_IMAGE_OPTIONS: ImageProcessOptions = {
 };
 
 export const DEFAULT_VIDEO_OPTIONS: VideoProcessOptions = {
-  outputFormat: "webm",
-  videoCodec: "vp9",
-  bitrateKbps: 1600,
-  crf: 32,
+  // H.264/MP4 is the most reliable encoder in FFmpeg.wasm. VP9 (libvpx-vp9)
+  // frequently triggers "memory access out of bounds" in the single-threaded
+  // wasm core, so it stays available but is not the default.
+  outputFormat: "mp4",
+  videoCodec: "h264",
+  crf: 23,
   resize: {
     mode: "original",
     maintainAspectRatio: true,

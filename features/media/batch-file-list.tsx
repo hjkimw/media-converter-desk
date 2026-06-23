@@ -105,6 +105,15 @@ export function BatchFileList({
                           setDraggingGroupKey(group.key);
                           event.currentTarget.setPointerCapture?.(event.pointerId);
                         }}
+                        onPointerMove={(event) => {
+                          if (!draggingGroupKey) return;
+                          const el = document.elementFromPoint(event.clientX, event.clientY);
+                          const section = el?.closest<HTMLElement>("[data-testid^='media-group-']");
+                          const targetKey = section?.dataset.testid?.slice("media-group-".length);
+                          if (targetKey && targetKey !== draggingGroupKey) {
+                            onReorderGroup?.(draggingGroupKey, targetKey);
+                          }
+                        }}
                         onPointerUp={() => setDraggingGroupKey(undefined)}
                         onPointerCancel={() => setDraggingGroupKey(undefined)}
                       >
@@ -227,6 +236,15 @@ export function BatchFileList({
                           event.preventDefault();
                           setDraggingId(item.id);
                           event.currentTarget.setPointerCapture?.(event.pointerId);
+                        }}
+                        onPointerMove={(event) => {
+                          if (!draggingId) return;
+                          const el = document.elementFromPoint(event.clientX, event.clientY);
+                          const row = el?.closest<HTMLElement>("[data-testid^='media-row-']");
+                          const targetId = row?.dataset.testid?.slice("media-row-".length);
+                          if (targetId && targetId !== draggingId) {
+                            onReorder(draggingId, targetId);
+                          }
                         }}
                         onPointerUp={() => setDraggingId(undefined)}
                         onPointerCancel={() => setDraggingId(undefined)}

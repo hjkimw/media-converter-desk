@@ -91,15 +91,24 @@ describe("MediaWorkspace", () => {
 
     const drawer = screen.getByTestId("settings-drawer");
     expect(drawer).toHaveAttribute("data-state", "closed");
-    expect(screen.getByRole("button", { name: "Open settings" })).toHaveAttribute("aria-pressed", "false");
 
-    fireEvent.click(screen.getByRole("button", { name: "Open settings" }));
+    fireEvent.click(screen.getByTestId("mobile-settings-button"));
     expect(drawer).toHaveAttribute("data-state", "open");
-    expect(screen.getByRole("button", { name: "Open settings" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("Output naming")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close settings" }));
     expect(drawer).toHaveAttribute("data-state", "closed");
+  });
+
+  it("renders a fixed circular settings button for mobile and a hidden desktop variant", () => {
+    render(<MediaWorkspace />);
+
+    const mobileButton = screen.getByTestId("mobile-settings-button");
+    expect(mobileButton).toHaveClass("fixed", "rounded-full", "xl:hidden");
+
+    const desktopButtons = screen.getAllByRole("button", { name: "Open settings" });
+    const desktopButton = desktopButtons.find((btn) => btn.classList.contains("hidden"));
+    expect(desktopButton).toHaveClass("hidden", "xl:inline-flex");
   });
 
   it("converts checked unconverted items before they become downloadable", async () => {
@@ -184,7 +193,7 @@ describe("MediaWorkspace", () => {
 
     render(<MediaWorkspace />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Open settings" }));
+    fireEvent.click(screen.getByTestId("mobile-settings-button"));
     fireEvent.change(screen.getByLabelText("Archive filename"), {
       target: { value: "client delivery" },
     });

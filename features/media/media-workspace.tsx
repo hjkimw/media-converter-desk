@@ -554,13 +554,22 @@ export function MediaWorkspace() {
             data-testid="media-main-panel"
             className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-visible pb-[164px] xl:overflow-hidden xl:pb-0"
           >
+            <button
+              aria-label="Open settings"
+              className="fixed right-4 top-4 z-50 flex size-11 items-center justify-center rounded-full bg-neutral-200 shadow-lg dark:bg-neutral-700 xl:hidden"
+              data-testid="mobile-settings-button"
+              type="button"
+              onClick={openInspector}
+            >
+              <Settings aria-hidden="true" className="size-5 text-black dark:text-black" />
+            </button>
             <PreviewPanel
               action={
                 <Button
                   aria-label="Open settings"
                   aria-pressed={isInspectorOpen}
                   className={cn(
-                    "transition-all duration-200 [&_svg]:transition-transform [&_svg]:duration-300",
+                    "hidden transition-all duration-200 xl:inline-flex [&_svg]:transition-transform [&_svg]:duration-300",
                     isInspectorOpen && "border-primary bg-primary/10 text-primary [&_svg]:rotate-90",
                   )}
                   size="sm"

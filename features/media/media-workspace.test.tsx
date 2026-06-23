@@ -4,6 +4,7 @@ import { MediaWorkspace } from "./media-workspace";
 import { useMediaStore } from "@/stores/media-store";
 import type { UploadedMedia } from "@/types/media";
 import { processImageInBrowser } from "@/lib/image/process-image";
+import { processVideoInBrowser } from "@/lib/ffmpeg/client";
 import { saveAs } from "file-saver";
 
 vi.mock("file-saver", () => ({
@@ -26,6 +27,23 @@ vi.mock("@/lib/image/process-image", () => ({
   }),
 }));
 
+vi.mock("@/lib/ffmpeg/client", () => ({
+  processVideoInBrowser: vi.fn(async (_file, _options, _metadata, onProgress?: (progress: number) => void) => {
+    onProgress?.(100);
+
+    return {
+      blob: new Blob(["converted"], { type: "video/webm" }),
+      objectUrl: "blob:converted-video",
+      outputName: "sample.webm",
+      size: 1,
+      mimeType: "video/webm",
+      width: 1920,
+      height: 1080,
+      duration: 10,
+    };
+  }),
+}));
+
 describe("MediaWorkspace", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -39,6 +57,7 @@ describe("MediaWorkspace", () => {
       archiveName: "converted-media-results",
     });
     vi.mocked(processImageInBrowser).mockClear();
+    vi.mocked(processVideoInBrowser).mockClear();
     vi.mocked(saveAs).mockClear();
   });
 
@@ -126,6 +145,44 @@ describe("MediaWorkspace", () => {
 
     await waitFor(() => expect(processImageInBrowser).toHaveBeenCalledOnce());
     await waitFor(() => expect(screen.getByRole("button", { name: "다운로드 (1)" })).toBeEnabled());
+  });
+
+  it("converts large videos in the browser instead of blocking on the server stub", async () => {
+    useMediaStore.setState({
+      items: [createItem({ id: "clip", name: "clip.mp4", type: "video", size: 200 * 1024 * 1024 })],
+      selectedId: "clip",
+    });
+
+    render(<MediaWorkspace />);
+
+    fireEvent.click(screen.getByLabelText("Select clip.mp4"));
+    fireEvent.click(screen.getByRole("button", { name: "변환 (1)" }));
+
+    await waitFor(() => expect(processVideoInBrowser).toHaveBeenCalledOnce());
+    await waitFor(() => expect(screen.getByRole("button", { name: "다운로드 (1)" })).toBeEnabled());
+  });
+
+  it("surfaces per-item conversion errors so failures are not silent", () => {
+    useMediaStore.setState({
+      items: [
+        {
+          ...createItem({ id: "broken", name: "broken.mp4", type: "video" }),
+          status: "failed",
+          error: {
+            code: "processing_failed",
+            message: "영상 변환에 실패했습니다.",
+            detail: "FFmpeg exited with code 1",
+          },
+        },
+      ],
+      selectedId: "broken",
+    });
+
+    render(<MediaWorkspace />);
+
+    expect(screen.getByTestId("conversion-errors")).toBeInTheDocument();
+    expect(screen.getByText("broken.mp4 변환 실패")).toBeInTheDocument();
+    expect(screen.getByText("FFmpeg exited with code 1")).toBeInTheDocument();
   });
 
   it("uses folder group deletion and can clear the whole source queue", () => {

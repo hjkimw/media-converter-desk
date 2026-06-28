@@ -40,11 +40,11 @@ export function DownloadPanel({
   return (
     <section
       data-testid="download-panel"
-      className={cn("shrink-0 rounded-md border border-border bg-card px-3 py-2", className)}
+      className={cn("shrink-0 rounded-md border border-border bg-card px-3 py-2 xl:min-h-[72px]", className)}
     >
       <div
         data-testid="download-panel-layout"
-        className="grid gap-3 xl:grid-cols-[minmax(190px,0.7fr)_minmax(300px,1fr)_minmax(320px,420px)] xl:items-center"
+        className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_minmax(220px,280px)_minmax(320px,420px)] xl:items-center"
       >
         <div
           className="grid min-w-0 gap-2 xl:contents"

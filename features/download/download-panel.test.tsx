@@ -148,8 +148,9 @@ describe("DownloadPanel", () => {
       />,
     );
 
+    expect(screen.getByTestId("download-panel")).toHaveClass("xl:min-h-[72px]");
     expect(screen.getByTestId("download-panel-layout")).toHaveClass(
-      "xl:grid-cols-[minmax(190px,0.7fr)_minmax(300px,1fr)_minmax(320px,420px)]",
+      "xl:grid-cols-[minmax(220px,1fr)_minmax(220px,280px)_minmax(320px,420px)]",
     );
     expect(screen.getByTestId("download-selection-summary")).toHaveClass("xl:min-h-10");
     expect(screen.getByTestId("download-status-row")).toHaveClass("min-w-0");
@@ -175,6 +176,7 @@ describe("DownloadPanel", () => {
     );
 
     expect(screen.getByTestId("download-selection-summary")).toHaveClass("xl:min-h-10");
+    expect(screen.getByTestId("download-panel")).toHaveClass("xl:min-h-[72px]");
     expect(screen.getByTestId("download-panel-layout")).toHaveClass("xl:items-center");
   });
 });

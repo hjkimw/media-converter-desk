@@ -89,7 +89,8 @@ describe("MediaWorkspace", () => {
     expect(screen.getByTestId("metric-videos")).toHaveTextContent("1");
     expect(screen.getByTestId("metric-selected")).toHaveTextContent("0");
     expect(screen.getByTestId("metric-converted")).toHaveTextContent("1");
-    expect(screen.getByTestId("metric-total-size")).toHaveTextContent("7.0 KB");
+    expect(screen.getByTestId("metric-input-total-size")).toHaveTextContent("7.0 KB");
+    expect(screen.getByTestId("metric-output-total-size")).toHaveTextContent("512 B");
 
     fireEvent.click(screen.getByLabelText("Select image-a.png"));
     expect(screen.getByTestId("metric-selected")).toHaveTextContent("1");
@@ -103,7 +104,8 @@ describe("MediaWorkspace", () => {
 
     expect(drawer).toHaveAttribute("data-state", "closed");
     expect(settingsButton).toHaveAttribute("aria-pressed", "false");
-    expect(settingsButton).toHaveClass("xl:border-primary/60", "xl:bg-primary/10", "xl:text-primary");
+    expect(settingsButton).toHaveClass("size-9", "border-white", "bg-white", "text-black");
+    expect(settingsButton).not.toHaveTextContent("Settings");
 
     fireEvent.click(settingsButton);
     expect(drawer).toHaveAttribute("data-state", "open");
@@ -148,6 +150,25 @@ describe("MediaWorkspace", () => {
     expect(useMediaStore.getState().items[0].name).toBe("renamed-source.png");
     expect(screen.getByRole("button", { name: "Edit filename renamed-source.png" })).toBeInTheDocument();
     expect(screen.getAllByText("renamed-source.png").length).toBeGreaterThan(1);
+  });
+
+  it("downloads a converted item with the renamed source filename", async () => {
+    useMediaStore.setState({
+      items: [createItem({ id: "sample", name: "sample.png", type: "image", withResult: true })],
+      selectedId: "sample",
+    });
+
+    render(<MediaWorkspace />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit filename sample.png" }));
+    const input = screen.getByLabelText("Rename sample.png");
+
+    fireEvent.change(input, { target: { value: "client-delivery.png" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.click(screen.getByLabelText("Select client-delivery.png"));
+    fireEvent.click(screen.getByRole("button", { name: "다운로드 (1)" }));
+
+    await waitFor(() => expect(saveAs).toHaveBeenCalledWith(expect.any(Blob), "client-delivery.webp"));
   });
 
   it("updates a folder group name from the source queue inline editor", () => {

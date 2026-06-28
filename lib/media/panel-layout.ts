@@ -1,4 +1,4 @@
-export const MIN_LEFT_PANEL_WIDTH = 380;
+export const MIN_LEFT_PANEL_WIDTH = 440;
 export const DEFAULT_LEFT_PANEL_WIDTH = 440;
 export const MAX_LEFT_PANEL_WIDTH = 640;
 export const LEFT_PANEL_WIDTH_STORAGE_KEY = "media-convert-left-panel-width";

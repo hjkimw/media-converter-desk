@@ -3,6 +3,7 @@
 import {
   CheckCircle2,
   CheckSquare,
+  Download,
   FileStack,
   HardDrive,
   ImageIcon,
@@ -450,13 +451,14 @@ export function MediaWorkspace() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:min-w-[760px] xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:min-w-[900px] xl:grid-cols-7 2xl:min-w-[980px]">
               <Metric icon={FileStack} value={items.length} label="Total" tone="neutral" />
               <Metric icon={ImageIcon} value={imageCount} label="Images" tone="image" />
               <Metric icon={VideoIcon} value={videoCount} label="Videos" tone="video" />
               <Metric icon={CheckSquare} value={checkedItems.length} label="Selected" tone="selected" />
               <Metric icon={CheckCircle2} value={convertedCount} label="Converted" tone="converted" />
-              <Metric icon={HardDrive} value={formatBytes(totalInputSize)} label="Total Size" tone="size" />
+              <Metric icon={HardDrive} value={formatBytes(totalInputSize)} label="Input Total Size" tone="inputSize" />
+              <Metric icon={Download} value={formatBytes(totalOutputSize)} label="Output Total Size" tone="outputSize" />
             </div>
           </div>
         </header>
@@ -552,15 +554,15 @@ export function MediaWorkspace() {
                   aria-label="Open settings"
                   aria-pressed={isInspectorOpen}
                   className={cn(
-                    "transition-all duration-200 xl:border-primary/60 xl:bg-primary/10 xl:text-primary xl:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] [&_svg]:transition-transform [&_svg]:duration-300",
-                    isInspectorOpen && "border-primary bg-primary/15 text-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.25)] [&_svg]:rotate-90",
+                    "size-9 shrink-0 border-white bg-white p-0 text-black shadow-[0_0_0_1px_hsl(var(--foreground)/0.12)] transition-all duration-200 hover:border-white hover:bg-white/90 hover:text-black [&_svg]:transition-transform [&_svg]:duration-300",
+                    isInspectorOpen && "bg-white text-black shadow-[0_0_0_2px_hsl(var(--primary)/0.45)] [&_svg]:rotate-90",
                   )}
-                  size="sm"
+                  size="icon"
+                  title="Settings"
                   variant="secondary"
                   onClick={openInspector}
                 >
-                  <Settings data-icon="inline-start" />
-                  Settings
+                  <Settings aria-hidden="true" />
                 </Button>
               }
               item={selectedItem}
@@ -614,7 +616,7 @@ function Metric({
   icon: typeof FileStack;
   value: number | string;
   label: string;
-  tone: "neutral" | "image" | "video" | "selected" | "converted" | "size";
+  tone: "neutral" | "image" | "video" | "selected" | "converted" | "inputSize" | "outputSize";
 }) {
   const testId = `metric-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -627,7 +629,8 @@ function Metric({
         tone === "video" && "text-amber-300",
         tone === "selected" && "text-lime-300",
         tone === "converted" && "text-emerald-300",
-        tone === "size" && "text-sky-300",
+        tone === "inputSize" && "text-sky-300",
+        tone === "outputSize" && "text-violet-300",
         tone === "neutral" && "text-foreground",
       )}
     >
@@ -636,7 +639,9 @@ function Metric({
       </div>
       <div className="min-w-0">
         <p className="font-brand-mono truncate text-base font-semibold leading-5">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="truncate text-xs text-muted-foreground" title={label}>
+          {label}
+        </p>
       </div>
     </div>
   );

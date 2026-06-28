@@ -1,5 +1,5 @@
 import type { ImageMetadata, UploadedMedia, VideoMetadata } from "@/types/media";
-import { formatBytes, formatDuration, formatPercentChange } from "@/lib/media/format";
+import { formatBytesWithExact, formatDuration, formatPercentChange } from "@/lib/media/format";
 
 export type PreviewMetadataRow = {
   label: string;
@@ -19,7 +19,7 @@ function buildBeforeMetadata(item: UploadedMedia): PreviewMetadataRow[] {
 
     return buildImageRows({
       fileName: item.name,
-      fileSize: formatBytes(item.size),
+      fileSize: formatBytesWithExact(item.size),
       format: normalizeFormat(metadata.format) || formatFromNameOrMime(item.name, item.mimeType),
       mime: item.mimeType || "Unknown",
       dimensions: formatDimensions(metadata.width, metadata.height),
@@ -33,7 +33,7 @@ function buildBeforeMetadata(item: UploadedMedia): PreviewMetadataRow[] {
 
     return buildVideoRows({
       fileName: item.name,
-      fileSize: formatBytes(item.size),
+      fileSize: formatBytesWithExact(item.size),
       format: formatFromNameOrMime(item.name, item.mimeType),
       mime: item.mimeType || "Unknown",
       dimensions: formatDimensions(metadata.width, metadata.height),
@@ -55,7 +55,7 @@ function buildAfterMetadata(item: UploadedMedia): PreviewMetadataRow[] {
   if (item.type === "image") {
     return buildImageRows({
       fileName: item.result.outputName,
-      fileSize: formatBytes(item.result.size),
+      fileSize: formatBytesWithExact(item.result.size),
       format: formatFromNameOrMime(item.result.outputName, item.result.mimeType),
       mime: item.result.mimeType || "Unknown",
       dimensions: formatDimensions(item.result.width, item.result.height),
@@ -68,7 +68,7 @@ function buildAfterMetadata(item: UploadedMedia): PreviewMetadataRow[] {
 
   return buildVideoRows({
     fileName: item.result.outputName,
-    fileSize: formatBytes(item.result.size),
+    fileSize: formatBytesWithExact(item.result.size),
     format: formatFromNameOrMime(item.result.outputName, item.result.mimeType),
     mime: item.result.mimeType || "Unknown",
     dimensions: formatDimensions(item.result.width, item.result.height),
@@ -153,7 +153,7 @@ function buildFallbackRows(item: UploadedMedia): PreviewMetadataRow[] {
   if (item.type === "video") {
     return buildVideoRows({
       fileName: item.name,
-      fileSize: formatBytes(item.size),
+      fileSize: formatBytesWithExact(item.size),
       format: formatFromNameOrMime(item.name, item.mimeType),
       mime: item.mimeType || "Unknown",
       dimensions: "-",
@@ -166,7 +166,7 @@ function buildFallbackRows(item: UploadedMedia): PreviewMetadataRow[] {
 
   return buildImageRows({
     fileName: item.name,
-    fileSize: formatBytes(item.size),
+    fileSize: formatBytesWithExact(item.size),
     format: formatFromNameOrMime(item.name, item.mimeType),
     mime: item.mimeType || "Unknown",
     dimensions: "-",

@@ -72,7 +72,32 @@ export const useMediaStore = create<MediaStore>((set) => ({
     }
 
     set((state) => ({
-      items: state.items.map((item) => (item.id === id ? { ...item, name: nextName } : item)),
+      items: state.items.map((item) => {
+        if (item.id !== id) {
+          return item;
+        }
+
+        if (!item.result) {
+          return { ...item, name: nextName };
+        }
+
+        const outputName = createOutputFilename({
+          originalName: nextName,
+          format: getResultFormat(item.result),
+          width: item.result.width ?? item.metadata?.width,
+          height: item.result.height ?? item.metadata?.height,
+          template: state.filenameTemplate,
+        });
+
+        return {
+          ...item,
+          name: nextName,
+          result: {
+            ...item.result,
+            outputName,
+          },
+        };
+      }),
     }));
   },
   renameFolderGroup: (folderKey, name) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useCallback, useRef, useState, type PointerEvent } from "react";
 import { ArrowRight, ImageIcon, Maximize2, Minus, Plus, VideoIcon } from "lucide-react";
 import type { UploadedMedia } from "@/types/media";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +16,37 @@ type PreviewPanelProps = {
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 1000;
 const PREVIEW_ZOOM_STEP = 10;
+type PreviewPaneKey = "original" | "result";
 
 export function PreviewPanel({ item, action }: PreviewPanelProps) {
   const [zoom, setZoom] = useState(100);
+  const previewFramesRef = useRef<Record<PreviewPaneKey, HTMLDivElement | null>>({
+    original: null,
+    result: null,
+  });
+  const setPreviewFrame = useCallback((key: PreviewPaneKey, node: HTMLDivElement | null) => {
+    previewFramesRef.current[key] = node;
+  }, []);
+  const setOriginalFrame = useCallback((node: HTMLDivElement | null) => setPreviewFrame("original", node), [setPreviewFrame]);
+  const setResultFrame = useCallback((node: HTMLDivElement | null) => setPreviewFrame("result", node), [setPreviewFrame]);
+  const syncPreviewPan = useCallback((sourceFrame: HTMLDivElement) => {
+    const sourceMaxLeft = getScrollMax(sourceFrame, "x");
+    const sourceMaxTop = getScrollMax(sourceFrame, "y");
+    const leftRatio = sourceMaxLeft > 0 ? sourceFrame.scrollLeft / sourceMaxLeft : 0;
+    const topRatio = sourceMaxTop > 0 ? sourceFrame.scrollTop / sourceMaxTop : 0;
+
+    Object.values(previewFramesRef.current).forEach((frame) => {
+      if (!frame || frame === sourceFrame) {
+        return;
+      }
+
+      const targetMaxLeft = getScrollMax(frame, "x");
+      const targetMaxTop = getScrollMax(frame, "y");
+
+      frame.scrollLeft = sourceMaxLeft > 0 && targetMaxLeft > 0 ? leftRatio * targetMaxLeft : sourceFrame.scrollLeft;
+      frame.scrollTop = sourceMaxTop > 0 && targetMaxTop > 0 ? topRatio * targetMaxTop : sourceFrame.scrollTop;
+    });
+  }, []);
 
   if (!item) {
     return (
@@ -69,7 +97,7 @@ export function PreviewPanel({ item, action }: PreviewPanelProps) {
 
       <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] xl:overflow-hidden">
         <PreviewPane title="Original" description={item.mimeType || "Unknown MIME"}>
-          <MediaPreview item={item} src={item.objectUrl} zoom={zoom} />
+          <MediaPreview item={item} src={item.objectUrl} zoom={zoom} onFrameRef={setOriginalFrame} onPanChange={syncPreviewPan} />
           <PreviewMetadata title="Before metadata" rows={metadata.before} />
         </PreviewPane>
 
@@ -85,7 +113,14 @@ export function PreviewPanel({ item, action }: PreviewPanelProps) {
         >
           {item.result ? (
             <>
-              <MediaPreview item={item} src={item.result.objectUrl} resultMimeType={item.result.mimeType} zoom={zoom} />
+              <MediaPreview
+                item={item}
+                src={item.result.objectUrl}
+                resultMimeType={item.result.mimeType}
+                zoom={zoom}
+                onFrameRef={setResultFrame}
+                onPanChange={syncPreviewPan}
+              />
               <PreviewMetadata title="After metadata" rows={metadata.after} />
             </>
           ) : (
@@ -164,11 +199,15 @@ function MediaPreview({
   src,
   resultMimeType,
   zoom,
+  onFrameRef,
+  onPanChange,
 }: {
   item: UploadedMedia;
   src: string;
   resultMimeType?: string;
   zoom: number;
+  onFrameRef: (node: HTMLDivElement | null) => void;
+  onPanChange: (sourceFrame: HTMLDivElement) => void;
 }) {
   const [isPanning, setIsPanning] = useState(false);
   const panState = useRef({
@@ -207,6 +246,7 @@ function MediaPreview({
     const frame = event.currentTarget;
     frame.scrollLeft = panState.current.scrollLeft + (panState.current.startX - event.clientX);
     frame.scrollTop = panState.current.scrollTop + (panState.current.startY - event.clientY);
+    onPanChange(frame);
   };
   const stopPan = () => setIsPanning(false);
   const frameClassName =
@@ -223,6 +263,7 @@ function MediaPreview({
     return (
       <div
         data-testid="media-preview-frame"
+        ref={onFrameRef}
         className={`${frameClassName} ${canPan ? "cursor-grab active:cursor-grabbing" : ""}`}
         {...interactiveFrameProps}
       >
@@ -240,6 +281,7 @@ function MediaPreview({
   return (
     <div
       data-testid="media-preview-frame"
+      ref={onFrameRef}
       className={`${frameClassName} ${canPan ? "cursor-grab active:cursor-grabbing" : ""}`}
       {...interactiveFrameProps}
     >
@@ -255,6 +297,12 @@ function MediaPreview({
       </video>
     </div>
   );
+}
+
+function getScrollMax(frame: HTMLDivElement, axis: "x" | "y") {
+  return axis === "x"
+    ? Math.max(0, frame.scrollWidth - frame.clientWidth)
+    : Math.max(0, frame.scrollHeight - frame.clientHeight);
 }
 
 function PreviewMetadata({ title, rows }: { title: string; rows: PreviewMetadataRow[] }) {

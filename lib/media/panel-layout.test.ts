@@ -3,7 +3,7 @@ import { clampLeftPanelWidth, DEFAULT_LEFT_PANEL_WIDTH, MAX_LEFT_PANEL_WIDTH, MI
 
 describe("left panel layout sizing", () => {
   it("clamps the source queue width to the supported desktop range", () => {
-    expect(MIN_LEFT_PANEL_WIDTH).toBe(380);
+    expect(MIN_LEFT_PANEL_WIDTH).toBe(440);
     expect(DEFAULT_LEFT_PANEL_WIDTH).toBe(440);
     expect(MAX_LEFT_PANEL_WIDTH).toBe(640);
     expect(clampLeftPanelWidth(120)).toBe(MIN_LEFT_PANEL_WIDTH);

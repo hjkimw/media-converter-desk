@@ -10,6 +10,12 @@ export function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${units[index]}`;
 }
 
+export function formatBytesWithExact(bytes: number) {
+  const byteLabel = bytes === 1 ? "byte" : "bytes";
+
+  return `${formatBytes(bytes)} (${formatWholeNumber(bytes)} ${byteLabel})`;
+}
+
 export function formatDuration(seconds?: number) {
   if (!Number.isFinite(seconds) || seconds === undefined) {
     return "Unknown";
@@ -39,4 +45,10 @@ export function formatPercentChange(original: number, result?: number) {
   const reduction = (1 - result / original) * 100;
 
   return `${reduction.toFixed(1)}% smaller`;
+}
+
+function formatWholeNumber(value: number) {
+  return Math.trunc(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

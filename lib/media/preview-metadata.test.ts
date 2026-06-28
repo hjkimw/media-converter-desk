@@ -9,7 +9,7 @@ describe("buildPreviewMetadata", () => {
 
     expect(metadata.before).toEqual([
       { label: "File Name", value: "sample.png" },
-      { label: "File Size", value: "4.0 KB" },
+      { label: "File Size", value: "4.0 KB (4,096 bytes)" },
       { label: "Format", value: "PNG" },
       { label: "MIME", value: "image/png" },
       { label: "Dimensions", value: "640 x 480" },
@@ -18,12 +18,12 @@ describe("buildPreviewMetadata", () => {
     ]);
     expect(metadata.after).toEqual([
       { label: "File Name", value: "sample-320x240.webp" },
-      { label: "File Size", value: "1.0 KB" },
+      { label: "File Size", value: "1.1 KB (1,153 bytes)" },
       { label: "Format", value: "WEBP" },
       { label: "MIME", value: "image/webp" },
       { label: "Dimensions", value: "320 x 240" },
       { label: "Alpha", value: "Unknown" },
-      { label: "Change", value: "75.0% smaller" },
+      { label: "Change", value: "71.9% smaller" },
     ]);
     expect(metadata.before.map((row) => row.label)).toEqual(labels);
     expect(metadata.after.map((row) => row.label)).toEqual(labels);
@@ -76,10 +76,10 @@ function createImageItem(withResult: boolean) {
     progress: withResult ? 100 : 0,
     result: withResult
       ? {
-          blob: new Blob(["x".repeat(1024)], { type: "image/webp" }),
+          blob: new Blob(["x".repeat(1153)], { type: "image/webp" }),
           objectUrl: "blob:result",
           outputName: "sample-320x240.webp",
-          size: 1024,
+          size: 1153,
           mimeType: "image/webp",
           width: 320,
           height: 240,

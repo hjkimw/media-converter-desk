@@ -71,6 +71,39 @@ describe("PreviewPanel", () => {
     expect(frame).toHaveClass("cursor-grab");
   });
 
+  it("syncs original and result preview pan positions while zoomed", () => {
+    render(<PreviewPanel item={createConvertedImage()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
+    const [originalFrame, resultFrame] = screen.getAllByTestId("media-preview-frame");
+
+    setScrollState(originalFrame, {
+      clientHeight: 400,
+      clientWidth: 500,
+      scrollHeight: 800,
+      scrollLeft: 100,
+      scrollTop: 80,
+      scrollWidth: 1000,
+    });
+    setScrollState(resultFrame, {
+      clientHeight: 800,
+      clientWidth: 1000,
+      scrollHeight: 1600,
+      scrollLeft: 0,
+      scrollTop: 0,
+      scrollWidth: 2000,
+    });
+
+    firePointerDown(originalFrame, { clientX: 200, clientY: 200 });
+    firePointerMove(originalFrame, { clientX: 100, clientY: 150 });
+    fireEvent.pointerUp(originalFrame);
+
+    expect(originalFrame.scrollLeft).toBe(200);
+    expect(originalFrame.scrollTop).toBe(130);
+    expect(resultFrame.scrollLeft).toBe(400);
+    expect(resultFrame.scrollTop).toBe(260);
+  });
+
   it("keeps the empty preview canvas compact and internally scrollable on compact viewports", () => {
     render(<PreviewPanel />);
 
@@ -136,6 +169,27 @@ function firePointerDown(element: HTMLElement, init: { clientX: number; clientY:
       clientY: init.clientY,
     }),
   );
+}
+
+function setScrollState(
+  element: HTMLElement,
+  values: {
+    clientHeight: number;
+    clientWidth: number;
+    scrollHeight: number;
+    scrollLeft: number;
+    scrollTop: number;
+    scrollWidth: number;
+  },
+) {
+  Object.defineProperties(element, {
+    clientHeight: { configurable: true, value: values.clientHeight },
+    clientWidth: { configurable: true, value: values.clientWidth },
+    scrollHeight: { configurable: true, value: values.scrollHeight },
+    scrollLeft: { configurable: true, value: values.scrollLeft, writable: true },
+    scrollTop: { configurable: true, value: values.scrollTop, writable: true },
+    scrollWidth: { configurable: true, value: values.scrollWidth },
+  });
 }
 
 function createConvertedImage() {
